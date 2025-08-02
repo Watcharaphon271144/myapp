@@ -25,3 +25,5 @@ app.use('/shops', shopsRouter);
 app.use('/auth', loginRouter);
 
 module.exports = app;
+
+
