@@ -10,6 +10,25 @@ let loginRouter = require("./routes/login")
 
 let tokenVerify = require("./middlewares/tokenHandle")
 
+let sequelize = require("./middlewares/database")
+const User = require("./models/user")
+
+async function testingConnectDatabase() {
+    try {
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+
+        console.log(User === sequelize.models.User);
+
+        sequelize.sync()
+
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+}
+testingConnectDatabase()
+
+
 var app = express();
 
 app.use(logger('dev'));
@@ -19,7 +38,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', [tokenVerify], usersRouter);
+app.use('/users', usersRouter);
 app.use('/shops', shopsRouter);
 
 app.use('/auth', loginRouter);
