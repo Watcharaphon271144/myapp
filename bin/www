@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-require('dotenv').config()
+require('dotenv').config(); // โหลดค่าจาก .env
 
 var app = require('../app');
 var debug = require('debug')('myapp:server');
@@ -14,11 +14,8 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT);
-if (!port) {
-  console.error('PORT is not defined in environment');
-  process.exit(1);
-}
+var port = normalizePort(process.env.PORT || '3005'); // ✅ fallback port ถ้าไม่มีใน env
+app.set('port', port);
 
 /**
  * Create HTTP server.
@@ -92,4 +89,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('✅ Server running on', bind);
 }
