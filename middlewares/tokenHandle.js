@@ -7,7 +7,7 @@ function tokenVerify(req, res, next) {
             throw new Error("Token is required.")
         }
         let rawToken = TOKEN.slice(7)
-        let tokenData = jwt.verify(rawToken, 'shhhhh')
+        let tokenData = jwt.verify(rawToken, process.env.JWT_SECRET)
         console.log(tokenData)
         next()
     } catch (error) {
