@@ -19,3 +19,5 @@ sequelize.sync({ alter: true })
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch(err => console.error('Database sync error:', err));
+
+module.exports = app;  // <== เพิ่มตรงนี้
