@@ -1,23 +1,13 @@
-var express = require('express');
-var router = express.Router();
-var jwt = require('jsonwebtoken');
+let express = require('express');
+let router = express.Router();
+let jwt = require('jsonwebtoken');
+const User = require('../models/user')
 
-/* GET users listing. */
-router.post('/', function (req, res, next) {
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
+router.post('/', async function (req, res, next) {
     try {
-        let userData = [
-            {
-                username: "john",
-                password: "0000",
-                fullname: "John Doe"
-            },
-            {
-                username: "doe",
-                password: "0000",
-                fullname: "Doe John"
-            }
-        ]
-
         let body = req.body
         if (!body.username || !body.password) {
             throw new Error("username and password is required.!")
@@ -25,20 +15,23 @@ router.post('/', function (req, res, next) {
 
         let userNameIsValid = false
         let passWordIsValid = false
-        for (let user of userData) {
-            if (body.username == user.username) {
-                userNameIsValid = true
-            }
-            if (body.password == user.password) {
-                passWordIsValid = true
+
+        const userData = await User.findOne({
+            where: {
+                username: body.username
+            },
+            raw: true
+        })
+        if (userData !== null) {
+            userNameIsValid = true
+            if (userData.password) {
+                passWordIsValid = await bcrypt.compare(body.password, userData.password)
             }
         }
         if (!userNameIsValid || !passWordIsValid) {
             throw new Error("username or password invalid.!")
         }
-
-        let token = jwt.sign({ username: body.username }, 'shhhhh', { expiresIn: "1h" });
-
+        let token = jwt.sign({ username: body.username }, process.env.JWT_SECRET, { expiresIn: "1h" });
         res.status(200).json({
             message: "Login Success.",
             token: token
