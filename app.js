@@ -12,9 +12,9 @@ const userRoutes = require('./routes/users');
 app.use(express.json());
 
 // 📌 Register routes
-app.use('/api', shopRoutes);               // เช่น /api/shops
-app.use('/login', loginRoute);             // ✅ แก้ตรงนี้ ให้ login ที่ /login
-app.use('/api/users', userRoutes);         // เช่น /api/users
+app.use('/api', shopRoutes);               
+app.use('/login', loginRoute);            
+app.use('/api/users', userRoutes);        
 
 // Optional: default route
 app.get('/', (req, res) => {

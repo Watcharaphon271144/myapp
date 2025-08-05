@@ -1,23 +1,20 @@
 // routes/auth.js
-require('dotenv').config(); // โหลด .env
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// ตัวอย่างข้อมูล user (ในโปรดักชันควรใช้ DB)
 const users = [
   {
     id: 1,
     username: 'admin',
-    passwordHash: bcrypt.hashSync('123456', 8), // hash ของ '123456'
+    passwordHash: bcrypt.hashSync('123456', 8),
   },
 ];
 
-// ใช้ JWT_SECRET จาก .env
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// POST /login
 router.post('/', (req, res) => {
   const { username, password } = req.body;
 
@@ -31,7 +28,6 @@ router.post('/', (req, res) => {
     return res.status(401).json({ message: 'Invalid username or password' });
   }
 
-  // สร้าง JWT token
   const token = jwt.sign(
     { id: user.id, username: user.username },
     JWT_SECRET,
