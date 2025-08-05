@@ -3,39 +3,24 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// ตัวอย่างข้อมูล user จริงควรเก็บใน DB
+// ตัวอย่าง user (ในจริงควรใช้ DB)
 const users = [
-  {
-    id: 1,
-    username: 'admin',
-    // รหัสผ่าน hashed จาก '123456'
-    passwordHash: bcrypt.hashSync('123456', 8),
-  },
+  { id: 1, username: 'admin', password: bcrypt.hashSync('123456', 8) }
 ];
 
-// คีย์ลับสำหรับเซ็น JWT (ควรเก็บใน .env)
-const JWT_SECRET = 'your_jwt_secret_key';
-
 // POST /login
-router.post('/login', (req, res) => {
+router.post('/', async (req, res) => {
   const { username, password } = req.body;
 
   const user = users.find(u => u.username === username);
-  if (!user) {
-    return res.status(401).json({ message: 'Invalid username or password' });
-  }
+  if (!user) return res.status(404).json({ message: 'User not found' });
 
-  const passwordIsValid = bcrypt.compareSync(password, user.passwordHash);
-  if (!passwordIsValid) {
-    return res.status(401).json({ message: 'Invalid username or password' });
-  }
+  const passwordIsValid = bcrypt.compareSync(password, user.password);
+  if (!passwordIsValid) return res.status(401).json({ message: 'Invalid password' });
 
-  // สร้าง token
-  const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
-  res.json({ token });
+  res.json({ message: 'Login successful', token });
 });
 
 module.exports = router;
