@@ -5,6 +5,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// ผู้ใช้ mock
 const users = [
   {
     id: 1,
@@ -13,8 +14,14 @@ const users = [
   },
 ];
 
-const JWT_SECRET = process.env.JWT_SECRET;
+// อ่าน JWT_SECRET จาก .env หรือ fallback (กันลืม)
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️ Warning: JWT_SECRET is not defined in environment variables. Using fallback_secret.');
+}
+
+// POST /login
 router.post('/', (req, res) => {
   const { username, password } = req.body;
 
