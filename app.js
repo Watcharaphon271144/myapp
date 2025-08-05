@@ -1,29 +1,26 @@
-// routes/auth.js
+// app.js
+require('dotenv').config(); // ✅ โหลดตัวแปรจาก .env
+
 const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const app = express();
 
-const users = [
-  { id: 1, username: 'admin', password: bcrypt.hashSync('123456', 8) }
-];
+const sequelize = require('./middlewares/database');
+const shopRoutes = require('./routes/shops');
+const loginRoute = require('./routes/auth');
+const userRoutes = require('./routes/users');
 
-router.post('/', async (req, res) => {
-  const { username, password } = req.body;
+// Middleware
+app.use(express.json());
 
-  const user = users.find(u => u.username === username);
-  if (!user) return res.status(404).json({ message: 'User not found' });
+// Routes
+app.use('/shops', shopRoutes);       // ✅ ไม่ต้องใช้ /api ก็ได้
+app.use('/login', loginRoute);       // ✅ ไม่ควรใช้ authMiddleware ที่นี่
+app.use('/users', userRoutes);
 
-  const passwordIsValid = bcrypt.compareSync(password, user.password);
-  if (!passwordIsValid) return res.status(401).json({ message: 'Invalid password' });
-
-  const token = jwt.sign(
-    { id: user.id },
-    process.env.JWT_SECRET || 'secret',
-    { expiresIn: '1h' }
-  );
-
-  res.json({ message: 'Login successful', token });
+// Default route
+app.get('/', (req, res) => {
+  res.send('Welcome to MyApp API');
 });
 
-module.exports = router;
+// Export express app + sequelize ให้ `bin/www` ใช้
+module.exports = { app, sequelize };
