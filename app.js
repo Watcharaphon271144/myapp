@@ -1,4 +1,3 @@
-// app.js
 require('dotenv').config();
 
 const express = require('express');
@@ -12,9 +11,9 @@ const userRoutes = require('./routes/users');
 app.use(express.json());
 
 // 📌 Register routes
-app.use('/api', shopRoutes);               
-app.use('/login', loginRoute);            
-app.use('/api/users', userRoutes);        
+app.use('/shops', shopRoutes);        // เปลี่ยนจาก '/api' เป็น '/shops' เพื่อให้ใช้ URL ตรง /shops
+app.use('/login', loginRoute);
+app.use('/users', userRoutes);         // เปลี่ยนจาก '/api/users' เป็น '/users' ถ้าอยากให้ path ไม่มี /api
 
 // Optional: default route
 app.get('/', (req, res) => {
