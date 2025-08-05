@@ -1,32 +1,29 @@
-require('dotenv').config();
-
+// routes/auth.js
 const express = require('express');
-const app = express();
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const sequelize = require('./middlewares/database');
-const shopRoutes = require('./routes/shops');
-const loginRoute = require('./routes/auth'); // 👈 เปลี่ยนชื่อเพื่อความชัดเจน
-const userRoutes = require('./routes/users');
+const users = [
+  { id: 1, username: 'admin', password: bcrypt.hashSync('123456', 8) }
+];
 
-app.use(express.json());
+router.post('/', async (req, res) => {
+  const { username, password } = req.body;
 
-// 📌 Register routes
-app.use('/shops', shopRoutes);        // เปลี่ยนจาก '/api' เป็น '/shops' เพื่อให้ใช้ URL ตรง /shops
-app.use('/login', loginRoute);
-app.use('/users', userRoutes);         // เปลี่ยนจาก '/api/users' เป็น '/users' ถ้าอยากให้ path ไม่มี /api
+  const user = users.find(u => u.username === username);
+  if (!user) return res.status(404).json({ message: 'User not found' });
 
-// Optional: default route
-app.get('/', (req, res) => {
-  res.send('Welcome to MyApp API');
+  const passwordIsValid = bcrypt.compareSync(password, user.password);
+  if (!passwordIsValid) return res.status(401).json({ message: 'Invalid password' });
+
+  const token = jwt.sign(
+    { id: user.id },
+    process.env.JWT_SECRET || 'secret',
+    { expiresIn: '1h' }
+  );
+
+  res.json({ message: 'Login successful', token });
 });
 
-const PORT = process.env.PORT || 3004;
-
-sequelize.sync({ alter: true })
-  .then(() => {
-    console.log('Database synced');
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('Database sync error:', err));
-
-module.exports = app;
+module.exports = router;
