@@ -3,8 +3,7 @@ const router = express.Router();
 const Shop = require('../models/shop');
 const authMiddleware = require('../middlewares/auth');
 
-// Create Shop (POST /shops) - Require token
-router.post('/shops', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, address } = req.body;
     if (!name || !address) {
@@ -17,8 +16,7 @@ router.post('/shops', authMiddleware, async (req, res) => {
   }
 });
 
-// Read Shops (GET /shops) - Support query ?name=xxx
-router.get('/shops', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { name } = req.query;
     let shops;
@@ -34,8 +32,7 @@ router.get('/shops', async (req, res) => {
   }
 });
 
-// Update Shop (PUT /shops/:id) - Require token
-router.put('/shops/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, address } = req.body;
@@ -52,8 +49,7 @@ router.put('/shops/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Delete Shop (DELETE /shops/:id) - Require token
-router.delete('/shops/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const shop = await Shop.findByPk(id);
