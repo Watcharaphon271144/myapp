@@ -1,26 +1,22 @@
-const express = require('express');
-const router = express.Router();
+// middlewares/auth.js
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
-// ตัวอย่าง user (ในจริงควรใช้ DB)
-const users = [
-  { id: 1, username: 'admin', password: bcrypt.hashSync('123456', 8) }
-];
+module.exports = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(403).json({ message: 'No token provided' });
+  }
 
-// POST /login
-router.post('/', async (req, res) => {
-  const { username, password } = req.body;
+  const token = authHeader.split(' ')[1]; // "Bearer <token>"
+  if (!token) {
+    return res.status(403).json({ message: 'Invalid token format' });
+  }
 
-  const user = users.find(u => u.username === username);
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  const passwordIsValid = bcrypt.compareSync(password, user.password);
-  if (!passwordIsValid) return res.status(401).json({ message: 'Invalid password' });
-
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
-
-  res.json({ message: 'Login successful', token });
-});
-
-module.exports = router;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret'); // <== ต้องตรงกับตอน sign
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(403).json({ message: 'Forbidden, invalid token' });
+  }
+};
